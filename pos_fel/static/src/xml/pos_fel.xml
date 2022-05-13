@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    
+    <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <!-- Por alguna razón, no se imprime del tamañao correcto sin estos css -->
+        <!--
+        <xpath expr="//*[@class='pos-receipt']" position="attributes">
+            <attribute name="style">
+                position: relative; left: 1.2em; font-size: 150%; zoom: 90%;
+            </attribute>
+        </xpath>
+        -->
+        
+        <!-- Información requerida por la SAT -->
+        <xpath expr="//*[@class='pos-receipt-contact']" position="replace">
+            <div class="pos-receipt-contact" style="font-size: 100%;">
+                <t t-esc="receipt.company.name"/><br/>
+                NIT: <t t-esc="receipt.company.vat"/><br/>
+                <br/>
+                <t t-if="env.pos.invoice_journal_address">
+                    <t t-esc="env.pos.invoice_journal_address.name"/><br/>
+                    <t t-esc="env.pos.invoice_journal_address.street"/><br/>
+                </t>
+                <br/>
+                <t t-if="fel.firma_fel">
+                    Documento Tributario Electrónico FEL<br/>
+                    Factura Electrónica<br/>
+                    Serie: <t t-esc="fel.serie_fel || ''"/><br/>
+                    Número: <t t-esc="fel.numero_fel || ''"/><br/>
+                </t>
+                <br/>
+                <div class="datos_factura">
+                    Fecha: <t t-esc="fel.fecha_pedido"/><br/>
+                    Empleado: <t t-esc="receipt.cashier"/><br/>
+                    <br/>
+                    NIT: <t t-esc="receipt.client.vat ? receipt.client.vat : 'CF'"/><br/>
+                    Nombre: <t t-esc="receipt.client.name"/><br/>
+                    Dirección: <t t-esc="receipt.street"/><br/><br/>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Para las facturas que tienen negativos -->
+        <xpath expr="//*[@class='pos-receipt-amount']" position="before">
+            <div>
+                <div>Subtotal: <span t-esc='env.pos.format_currency_no_symbol(receipt.total_with_tax + fel.precio_total_descuento)' class="pos-receipt-right-align"/></div>
+                <div>Descuento: <span t-esc='env.pos.format_currency_no_symbol(fel.precio_total_descuento)' class="pos-receipt-right-align"/></div>
+            </div>
+        </xpath>
+        
+        <!-- Información del certificador -->
+        <xpath expr="//*[@class='before-footer']" position="after">
+            <br/>
+            <t t-if="!fel.certificador_fel">
+                Certificador<br/>
+                INFILE, S.A.<br/>
+                NIT: 12521337<br/>
+            </t>
+            <t t-if="fel.certificador_fel == 'g4s'">
+                Certificador<br/>
+                G4S DOCUMENTA, S. A.<br/>
+                NIT: 60010207<br/>
+            </t>
+            <t t-if="fel.certificador_fel == 'gom'">
+                Certificador<br/>
+                GOM SOLUTIONS, SOCIEDAD ANONIMA<br/>
+                NIT: 95189416<br/>
+            </t>
+            <t t-if="fel.certificador_fel == 'ecofactura'">
+                Certificador<br/>
+                ECO-FACTURAS<br/>
+                NIT: 64281167<br/>
+            </t>
+            <t t-if="fel.certificador_fel == 'ccg'">
+                Certificador<br/>
+                Cámara de Comercio de Guatemala<br/>
+                NIT: 351598<br/>
+            </t>
+            <t t-if="fel.firma_fel">
+                Autorización: <t t-esc="fel.firma_fel || ''"/><br/>
+                Fecha Certificación: <t t-esc="fel.fecha_pedido"/>
+            </t>
+            <div t-if='!receipt.footer and !receipt.footer_html'>
+                Sujeto a pagos trimestrales ISR<br/>
+            </div>
+        </xpath>
+     </t>
+     
+</templates>

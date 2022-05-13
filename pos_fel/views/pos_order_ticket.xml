@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_pos_order_ticket">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article">
+                    <div class="header">
+                    </div>
+                    <div class="page">
+                        <t t-if="o.firma_fel">
+
+                            <span t-field="o.config_id.name"/><br/>
+                            <br/>
+                            <t t-if="o.company_id.logo">
+                                <p class="text-center">
+                                    <img  t-att-src="image_data_uri(o.company_id.logo)" style="width: 10em"/>
+                                </p>
+                            </t>
+                            <span t-field="o.company_id.name"/><br/>
+                            NIT: <span t-field="o.company_id.vat"/><br/>
+                            <t t-if="o.config_id.receipt_header">
+                                <span t-field="o.config_id.receipt_header"/><br/>
+                            </t>
+                            <span t-field="o.account_move.journal_id.direccion.name"/><br/>
+                            <span t-field="o.account_move.journal_id.direccion.street"/><br/>
+                            <br/>
+                            Documento Tributario Electrónico FEL<br/>
+                            <t t-if="o.account_move.type == 'out_invoice'">
+                                Factura Electrónica<br/>
+                            </t>
+                            <t t-if="o.account_move.type == 'out_refund'">
+                                Nota de crédito electrónica
+                            </t>
+                            <br/>
+                            Serie: <span t-field="o.serie_fel"/><br/>
+                            Número: <span t-field="o.numero_fel"/><br/>
+                            <br/>
+                            Fecha: <span t-field="o.date_order"/><br/>
+                            Empleado: <span t-field="o.employee_id.name"/><br/>
+                            <br/>
+                            <t>
+                                NIT: <span t-field="o.partner_id.vat"/><br/>
+                                Nombre: <span t-field="o.partner_id.name"/><br/>
+                                Dirección: <span t-field="o.partner_id.street"/><br/>
+                            </t>
+                            <table width="100%">
+                                <colgroup>
+                                    <col width="50%"/>
+                                    <col width="25%"/>
+                                    <col width="25%"/>
+                                </colgroup>
+                                <tr t-foreach="o.lines" t-as="l">
+                                    <td>
+                                        <t t-esc="l.product_id.name"/>
+                                        <div class="linea_extras">
+                                            <t t-foreach="l.pack_lot_ids" t-as="lot">
+                                                <span t-esc="lot.lot_name"/><br/>
+                                            </t>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="l.qty"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="l.price_unit * l.qty" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table width="100%">
+                                <colgroup>
+                                    <col width="50%"/>
+                                    <col width="50%"/>
+                                </colgroup>
+                                <tr>
+                                    <td>Total:</td>
+                                    <td class="text-right">
+                                        <span t-field="o.amount_total" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br/>
+                            <table width="100%">
+                                <t t-foreach="o.payment_ids" t-as="l">
+                                    <colgroup>
+                                        <col width="50%"/>
+                                        <col width="50%"/>
+                                    </colgroup>
+                                    <tr>
+                                        <td>
+                                            <span t-field="l.payment_method_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="l.amount" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                            <br/>
+                            <table width="100%">
+                                <colgroup>
+                                    <col width="50%"/>
+                                    <col width="50%"/>
+                                </colgroup>
+                                <tr>
+                                    <td>Cambio:</td>
+                                    <td class="pos-right-align">
+                                        <span t-esc="0.00" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                            <t t-if="not o.certificador_fel">
+                                Certificador<br/>
+                                INFILE, S.A.<br/>
+                                NIT: 12521337<br/>
+                            </t>
+                            <t t-if="o.certificador_fel == 'g4s'">
+                                Certificador<br/>
+                                G4S DOCUMENTA, S. A.<br/>
+                                NIT: 60010207<br/>
+                            </t>
+                            <t t-if="o.certificador_fel == 'gom'">
+                                Certificador<br/>
+                                GOM SOLUTIONS, SOCIEDAD ANONIMA<br/>
+                                NIT: 95189416<br/>
+                            </t>
+                            <t t-if="o.certificador_fel == 'ecofactura'">
+                                Certificador<br/>
+                                ECO-FACTURAS<br/>
+                                NIT: 64281167<br/>
+                            </t>
+                            <t t-if="o.firma_fel">
+                                Autorización: <t t-esc="o.firma_fel"/><br/>
+                                Fecha Certificación: <t t-esc="o.date_order"/>
+                            </t>
+                            <span t-field="o.name"/><br/>
+                            <t t-if="o.config_id.receipt_footer">
+                                <br />
+                                <span t-field="o.config_id.receipt_footer"/><br/>
+                            </t>
+                            <div t-if='not o.config_id.receipt_footer'>
+                                Sujeto a pagos trimestrales ISR<br/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>
